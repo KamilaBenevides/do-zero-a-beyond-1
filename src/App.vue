@@ -1,43 +1,28 @@
 <template>
   <v-app>
     <v-main>
-      <v-app-bar color="green">{{ nome }}</v-app-bar>
+      <v-app-bar color="green">{{ firstName }}</v-app-bar>
       <div class="messages-container">
         <div v-for="(message, index) in messages" :key="index">
-          <v-card
-            outlined
-            class="ma-3"
-            :class="message.name == 'Eu' ? 'purple lighten-2' : 'teal accent-4'"
-          >
-            <v-card-subtitle class="font-weight-bold">{{
-              message.name
-            }}</v-card-subtitle>
-            <v-card-text>{{ message.text }}</v-card-text>
-          </v-card>
+          <MessageCard :messageProp="message" />
         </div>
       </div>
-      <v-app-bar color="#424242" fixed bottom>
-        <v-text-field
-          @keyup.enter="sendMessage()"
-          v-model="campo_text"
-          solo
-          hide-details
-          label="Enviar mensagem..."
-        ></v-text-field>
-        <v-btn @click="sendMessage()" x-large icon color="blue">
-          <v-icon>mdi-send</v-icon>
-        </v-btn>
-      </v-app-bar>
+      <BottomBar @send-message="addMessage($event)" />
     </v-main>
   </v-app>
 </template>
 
 <script>
+import MessageCard from './components/MessageCard.vue'
+import BottomBar from './components/BottomBar.vue'
 export default {
-  name: 'App',
+  components: {
+    MessageCard,
+    BottomBar
+  },
   data() {
     return {
-      nome: 'kamila',
+      nome: 'kamila Benevides',
       messages: [
         {
           name: 'Kamila Benevides',
@@ -47,18 +32,18 @@ export default {
           name: 'Kamila Benevides',
           text: 'Turu bem?'
         }
-      ],
-      campo_text: ''
+      ]
+    }
+  },
+  computed: {
+    firstName() {
+      console.log('entrou na função')
+      return this.nome.split(' ')[0]
     }
   },
   methods: {
-    sendMessage() {
-      let message = {
-        name: 'Eu',
-        text: this.campo_text
-      }
-      this.messages.push(message)
-      this.campo_text = ''
+    addMessage(event) {
+      this.messages.push(event)
     }
   },
   mounted() {}
