@@ -1,5 +1,12 @@
 <template>
-  <v-btn @click="limpar()" class="mx-2" dark small fab color="purple darken-4">
+  <v-btn
+    @click="limpar()"
+    class="mx-2"
+    dark
+    small
+    fab
+    :color="$store.getters['theme/themeColors'].bottons"
+  >
     <v-icon>mdi-delete</v-icon>
   </v-btn>
 </template>

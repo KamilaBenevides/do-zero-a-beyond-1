@@ -1,22 +1,29 @@
 <template>
-  <v-card v-show="!hidden" outlined class="ma-2" color="deep-orange lighten-3">
+  <v-card
+    v-show="!hidden"
+    outlined
+    class="ma-2"
+    :color="$store.getters['theme/themeColors'].list"
+  >
     <v-card-subtitle class="font-weight-bold d-flex">
       {{ messageProp.name }}
 
       <v-spacer></v-spacer>
-      <v-icon @click.stop="dialog = true">mdi-pencil</v-icon>
-      <v-icon @click="hidden = !hidden">mdi-delete</v-icon>
+      <v-icon dark @click.stop="dialog = true">mdi-pencil</v-icon>
+      <v-icon dark @click="hidden = !hidden">mdi-delete</v-icon>
     </v-card-subtitle>
 
     <v-card-text>
       {{ messageProp.text }}
     </v-card-text>
-    <h6 class="d-flex align-end justify-end ma-1">{{ getData }}</h6>
+    <h6 class="d-flex align-end justify-end ma-1">
+      {{ getData }}
+    </h6>
     <v-dialog v-model="dialog" max-width="290">
       <v-card>
         <v-text-field
           @keyup.enter="edit(), (dialog = false)"
-          color="purple darken-4"
+          :color="$store.getters['theme/themeColors'].bottomIcon"
           v-model="fieldEdit"
           class="ma-3"
         >
@@ -56,8 +63,9 @@ export default {
   },
   methods: {
     edit() {
-      let edited = this.fieldEdit
-      this.messageProp.text = edited
+      console.log(this.messageProp)
+      this.messageProp.text = this.fieldEdit
+      this.fieldEdit = ' '
     }
   },
   computed: {
