@@ -5,7 +5,7 @@ import Vuex from 'vuex'
 import VuexPersistence from 'vuex-persist'
 import VueRouter from 'vue-router'
 import Vuelidate from 'vuelidate'
-import { auth } from './config/firebase'
+import { auth, firestore, timestamp, storage } from './config/firebase'
 import {
   getAuth,
   onAuthStateChanged,
@@ -84,6 +84,7 @@ const users = {
       signOut(auth)
         .then(() => {
           console.log('deslogou')
+          ;(this.loggedUser = null), (this.currentUser = ' ')
           router.push('/')
         })
         .catch((error) => {
@@ -160,8 +161,24 @@ const post = {
     ]
   },
   actions: {
-    sendPost({ commit }, payload) {
-      commit('addPost', payload)
+    // eslint-disable-next-line no-unused-vars
+    async sendPost({ commit }, payload) {
+      try {
+        if (payload.file) {
+          const upload = await storage
+            .ref()
+            .child(`${payload.from}` + `/` + `${+new Date()}`)
+            .put(payload.file)
+          payload.fileUrl = await upload.ref.getDownloadURL()
+          payload.file = true
+        }
+        payload.createAt = timestamp
+        await firestore.collection('posts').add(payload)
+        console.log('deu cert, post foi')
+      } catch (error) {
+        console.log('quebrou aqui ' + error)
+      }
+      //commit('addPost', payload)
     }
   },
   mutations: {

@@ -21,6 +21,7 @@
 
     <v-card-text>
       {{ messageProp.text }}
+      <v-img i-if="messageProp.file" :src="src" />
     </v-card-text>
     <h6 class="d-flex align-end justify-end ma-1">
       {{ getData }}
@@ -62,7 +63,8 @@ export default {
       dialog: false,
       fieldEdit: ' ',
       hidden: false,
-      dataHora: {}
+      dataHora: {},
+      src: this.messageProp.fileUrl
     }
   },
   props: {

@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-main :class="colorBack(!themeBox)">
+    <v-main class="backL">
       <v-app-bar
         :dark="!$store.state.theme.themeBox"
         prominent
@@ -27,6 +27,7 @@
           <v-dialog v-model="dialog" width="500">
             <v-card>
               <v-card-title>Novo Post</v-card-title>
+              <v-file-input v-model="file" truncate-length="15"></v-file-input>
               <v-text-field
                 v-model="fieldPost"
                 class="ma-3"
@@ -53,7 +54,7 @@
       </v-app-bar>
 
       <div v-show="!hidden" class="messages-container mb-15">
-        <div v-for="(message, index) in reverseMessages" :key="index">
+        <div v-for="(message, index) in posts" :key="index">
           <MessageCard
             v-if="message.name === socialMedia"
             :messageProp="message"
@@ -68,6 +69,7 @@
 import MessageCard from './MessageCard.vue'
 import Limpar from './Limpar.vue'
 import BtnLogout from './BtnLogout.vue'
+import { firestore } from '../config/firebase.js'
 
 export default {
   components: {
@@ -79,16 +81,14 @@ export default {
     return {
       dialog: false,
       fieldPost: ' ',
-      hidden: false
+      hidden: false,
+      posts: [],
+      file: null
     }
   },
   computed: {
     currentUser() {
       return this.$store.state.users.currentUser
-    },
-    reverseMessages() {
-      const messageReverse = this.$store.state.post.messages
-      return messageReverse.reverse()
     },
     socialMedia() {
       const user = this.$store.state.users.users.find(
@@ -107,7 +107,9 @@ export default {
     addPost(nameUser) {
       let novoPost = {
         name: nameUser,
-        text: this.fieldPost
+        from: this.$store.state.users.loggedUser.uid,
+        text: this.fieldPost,
+        file: this.file
       }
       console.log(novoPost)
       this.$store.dispatch('post/sendPost', novoPost)
@@ -118,6 +120,18 @@ export default {
     colorBack(t) {
       return t ? 'backL' : 'backD'
     }
+  },
+  created() {
+    firestore
+      .collection('posts')
+      .where('from', '==', this.$store.state.users.loggedUser.uid)
+      .orderBy('createAt', 'desc')
+      .onSnapshot((snap) => {
+        this.posts = []
+        snap.forEach((doc) => {
+          this.posts.push(doc.data())
+        })
+      })
   },
 
   mounted() {}
