@@ -2,7 +2,7 @@
   <v-btn
     @click="limpar()"
     class="mx-2"
-    dark
+    :dark="!$store.state.theme.themeBox"
     small
     fab
     :color="$store.getters['theme/themeColors'].bottons"

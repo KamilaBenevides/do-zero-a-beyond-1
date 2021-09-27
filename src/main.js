@@ -4,35 +4,145 @@ import vuetify from './plugins/vuetify'
 import Vuex from 'vuex'
 import VuexPersistence from 'vuex-persist'
 import VueRouter from 'vue-router'
+import Vuelidate from 'vuelidate'
+import { auth } from './config/firebase'
+import {
+  getAuth,
+  onAuthStateChanged,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signOut
+} from 'firebase/auth'
+
 import Feed from '../src/components/Feed.vue'
 import Users from '../src/components/Users.vue'
+import Login from '../src/components/Login.vue'
 
 Vue.use(VueRouter)
 Vue.use(Vuex)
+Vue.use(Vuelidate)
+
+const provider = new GoogleAuthProvider()
 
 const users = {
   namespaced: true,
   state: {
     users: [
       {
-        avatar: '../assets/Kamila.jpeg', //avatar a gente tenta na prox
         name: 'Kamila Benevides',
         id: 0
-      },
-      {
-        avatar: 'https://cdn.vuetifyjs.com/images/lists/2.jpg',
-        name: 'Isaac Benevides',
-        id: 1
-      },
-      {
-        avatar: 'https://cdn.vuetifyjs.com/images/lists/3.jpg',
-        name: 'Miguel Almeida',
-        id: 2
       }
-    ]
+    ],
+    loggedUser: null,
+    countId: 1,
+    currentUser: ' '
   },
-  actions: {},
-  mutations: {}
+  actions: {
+    // eslint-disable-next-line no-unused-vars
+    create({ commit }, payload) {
+      const { email, password, name } = payload
+      auth
+        .createUserWithEmailAndPassword(email, password)
+        .then((res) => {
+          console.log(res)
+          commit('NewUser', name)
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+    },
+    // eslint-disable-next-line no-unused-vars
+    authenticate({ commit }, payload) {
+      const { email, password } = payload
+      auth
+        .signInWithEmailAndPassword(email, password)
+        .then((res) => {
+          console.log(res.user)
+          commit('setUser', res.user)
+
+          router.push('/users')
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+    },
+    // eslint-disable-next-line no-unused-vars
+    authenticateGoogle({ commit }) {
+      const auth = getAuth()
+      signInWithPopup(auth, provider)
+        .then((result) => {
+          const user = result.user
+          commit('loginGoogle', user)
+          router.push('/users')
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+    },
+    // eslint-disable-next-line no-unused-vars
+    logout({ commit }) {
+      signOut(auth)
+        .then(() => {
+          console.log('deslogou')
+          router.push('/')
+        })
+        .catch((error) => {
+          console.log('erro ao deslogar ' + error)
+        })
+    }
+  },
+  mutations: {
+    setUser(state, user) {
+      state.loggedUser = user
+      state.users.forEach((element) => {
+        console.log(element.id + ' === ' + user.uid)
+        if (element.id === user.uid) {
+          state.currentUser = element.name
+        }
+      })
+
+      console.log('ver oq é isso: ' + user.uid)
+    },
+    NewUser(state, name) {
+      console.log('chegou aqui pra criar')
+      let addUser = {
+        name: name,
+        id: state.countId
+      }
+      state.countId += 1
+      state.users.push(addUser)
+      state.currentUser = name
+      console.log('chegou aqui oia' + state.currentUser)
+    },
+    loginGoogle(state, user) {
+      console.log(user.displayName)
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          state.currentUser = user.displayName
+          console.log('user encontrado:')
+          console.log(state.currentUser)
+          let flag = 0 //sorry o pog
+          for (let u = 0; u < state.users.length; u++) {
+            flag += 1
+            if (state.users[u].name === user.displayName) {
+              console.log('achou igual')
+            }
+            if (flag == u) {
+              let addUser = {
+                name: user.displayName,
+                id: user.uid
+              }
+              console.log('criou e entrou')
+              state.users.push(addUser)
+              break
+            }
+          }
+        } else {
+          console.log('erro')
+        }
+      })
+    }
+  }
 }
 
 const post = {
@@ -67,8 +177,8 @@ const theme = {
     themeBox: false,
     themeColors: [
       {
-        bar: 'deep-purple darken-4',
-        list: 'blue darken-1',
+        bar: 'grey darken-4',
+        list: 'cyan darken-4',
         colorText: 'blue-grey darken-4',
         bottomIcon: 'purple darken-4'
       },
@@ -119,6 +229,10 @@ const store = new Vuex.Store({
 const routes = [
   {
     path: '/',
+    component: Login
+  },
+  {
+    path: '/users',
     component: Users
   },
   {

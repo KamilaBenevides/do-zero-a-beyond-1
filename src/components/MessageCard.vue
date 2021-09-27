@@ -2,6 +2,8 @@
   <v-card
     v-show="!hidden"
     outlined
+    elevation="3"
+    :dark="!$store.state.theme.themeBox"
     class="ma-2"
     :color="$store.getters['theme/themeColors'].list"
   >
@@ -9,8 +11,12 @@
       {{ messageProp.name }}
 
       <v-spacer></v-spacer>
-      <v-icon dark @click.stop="dialog = true">mdi-pencil</v-icon>
-      <v-icon dark @click="hidden = !hidden">mdi-delete</v-icon>
+      <v-icon :dark="!$store.state.theme.themeBox" @click.stop="dialog = true"
+        >mdi-pencil</v-icon
+      >
+      <v-icon :dark="!$store.state.theme.themeBox" @click="hidden = !hidden"
+        >mdi-delete</v-icon
+      >
     </v-card-subtitle>
 
     <v-card-text>
@@ -29,11 +35,15 @@
         >
         </v-text-field>
         <v-card-actions>
-          <v-btn color="purple darken-4" text @click="dialog = false">
+          <v-btn
+            :color="$store.getters['theme/themeColors'].bottomIcon"
+            text
+            @click="dialog = false"
+          >
             Cancelar
           </v-btn>
           <v-btn
-            color="purple darken-4"
+            :color="$store.getters['theme/themeColors'].bottomIcon"
             text
             @click=";(dialog = false), edit()"
           >
@@ -69,6 +79,14 @@ export default {
     }
   },
   computed: {
+    themeBox: {
+      get() {
+        return this.$store.state.theme.themeBox
+      },
+      set(nv) {
+        this.$store.dispatch('theme/setTheme', nv)
+      }
+    },
     getData: function() {
       let hoje = new Date(),
         dataHora = {
