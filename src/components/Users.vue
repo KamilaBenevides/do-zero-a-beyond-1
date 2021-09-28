@@ -27,7 +27,7 @@
       <v-list :color="$store.getters['theme/themeColors'].list">
         <v-list-item
           :dark="!$store.state.theme.themeBox"
-          v-for="user of $store.state.users.users"
+          v-for="user of usuarios"
           :key="user.id"
           @click="goToUser(user.id)"
         >
@@ -42,12 +42,16 @@
 
 <script>
 import BtnLogout from './BtnLogout.vue'
+import { firestore } from '../config/firebase.js'
+
 export default {
   components: {
     BtnLogout
   },
   data() {
-    return {}
+    return {
+      usuarios: []
+    }
   },
   computed: {
     themeBox: {
@@ -59,7 +63,7 @@ export default {
       }
     },
     currentUser() {
-      return this.$store.state.users.currentUser.split(' ')[0]
+      return this.$store.state.users.currentUser.cName
     }
   },
   methods: {
@@ -72,6 +76,14 @@ export default {
     changeTheme() {
       return this.$store.dispatch('theme/change', true)
     }
+  },
+  created() {
+    firestore.collection('usuarios').onSnapshot((snap) => {
+      this.usuarios = []
+      snap.forEach((doc) => {
+        this.usuarios.push(doc.data())
+      })
+    })
   }
 }
 </script>

@@ -9,7 +9,7 @@
         <v-app-bar-title>
           <h5>Olá, {{ currentUser }}</h5>
           <br />
-          <h3>{{ socialMedia }}</h3>
+          <h3>{{ usuario.name }}</h3>
         </v-app-bar-title>
         <v-spacer></v-spacer>
         <div class="d-flex align-end">
@@ -40,7 +40,7 @@
               <v-btn
                 color="purple darken-4"
                 text
-                @click=";(dialog = false), addPost(socialMedia)"
+                @click=";(dialog = false), addPost()"
               >
                 Publicar
               </v-btn>
@@ -56,7 +56,7 @@
       <div v-show="!hidden" class="messages-container mb-15">
         <div v-for="(message, index) in posts" :key="index">
           <MessageCard
-            v-if="message.name === socialMedia"
+            v-if="message.name === usuario.name"
             :messageProp="message"
           />
         </div>
@@ -83,31 +83,22 @@ export default {
       fieldPost: ' ',
       hidden: false,
       posts: [],
-      file: null
+      usuario: ' ',
+      file: null,
+      socialMedia: ' '
     }
   },
   computed: {
     currentUser() {
-      return this.$store.state.users.currentUser
-    },
-    socialMedia() {
-      const user = this.$store.state.users.users.find(
-        (u) => u.id === parseInt(this.$route.params.id)
-      )
-      if (user === undefined) {
-        const user2 = this.$store.state.users.users.find(
-          (u) => u.id === this.$route.params.id
-        )
-        return user2.name
-      }
-      return user.name
+      return this.$store.state.users.currentUser.cName
     }
   },
   methods: {
-    addPost(nameUser) {
+    addPost() {
       let novoPost = {
-        name: nameUser,
-        from: this.$store.state.users.loggedUser.uid,
+        name: this.usuario.name,
+        to: this.$route.params.id,
+        from: this.$store.state.users.currentUser.cId,
         text: this.fieldPost,
         file: this.file
       }
@@ -124,13 +115,23 @@ export default {
   created() {
     firestore
       .collection('posts')
-      .where('from', '==', this.$store.state.users.loggedUser.uid)
+      .where('from', '==', this.$store.state.users.currentUser.cId)
       .orderBy('createAt', 'desc')
       .onSnapshot((snap) => {
         this.posts = []
         snap.forEach((doc) => {
           this.posts.push(doc.data())
         })
+        console.log(this.posts[0])
+      })
+    firestore
+      .collection('usuarios')
+      .where('id', '==', this.$route.params.id)
+      .onSnapshot((snap) => {
+        snap.forEach((doc) => {
+          this.usuario = doc.data()
+        })
+        console.log(this.usuario.name)
       })
   },
 

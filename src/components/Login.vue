@@ -76,10 +76,11 @@ export default {
 
   methods: {
     async login() {
-      this.$store.dispatch('users/authenticate', {
+      let authUser = {
         email: this.email,
         password: this.password
-      })
+      }
+      this.$store.dispatch('users/authenticate', authUser)
     },
     async loginGoogle() {
       this.$store.dispatch('users/authenticateGoogle', {})

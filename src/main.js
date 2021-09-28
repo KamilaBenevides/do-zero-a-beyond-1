@@ -11,7 +11,8 @@ import {
   onAuthStateChanged,
   signInWithPopup,
   GoogleAuthProvider,
-  signOut
+  signOut,
+  signInWithEmailAndPassword
 } from 'firebase/auth'
 
 import Feed from '../src/components/Feed.vue'
@@ -35,7 +36,7 @@ const users = {
     ],
     loggedUser: null,
     countId: 1,
-    currentUser: ' '
+    currentUser: null
   },
   actions: {
     // eslint-disable-next-line no-unused-vars
@@ -44,8 +45,15 @@ const users = {
       auth
         .createUserWithEmailAndPassword(email, password)
         .then((res) => {
-          console.log(res)
-          commit('NewUser', name)
+          const userTest = res.user
+          console.log({ userTest })
+          let addUser = {
+            name: name,
+            id: userTest.uid,
+            email: email
+          }
+          commit('NewUser', addUser)
+          router.push('/users')
         })
         .catch((err) => {
           console.log(err)
@@ -54,11 +62,10 @@ const users = {
     // eslint-disable-next-line no-unused-vars
     authenticate({ commit }, payload) {
       const { email, password } = payload
-      auth
-        .signInWithEmailAndPassword(email, password)
+      signInWithEmailAndPassword(auth, email, password)
         .then((res) => {
-          console.log(res.user)
-          commit('setUser', res.user)
+          const userTeste = res.user
+          commit('setUser', userTeste)
 
           router.push('/users')
         })
@@ -95,51 +102,54 @@ const users = {
   mutations: {
     setUser(state, user) {
       state.loggedUser = user
+      console.log(user.displayName)
       state.users.forEach((element) => {
-        console.log(element.id + ' === ' + user.uid)
         if (element.id === user.uid) {
           state.currentUser = element.name
         }
       })
-
-      console.log('ver oq é isso: ' + user.uid)
     },
-    NewUser(state, name) {
+    NewUser(state, dates) {
       console.log('chegou aqui pra criar')
-      let addUser = {
-        name: name,
-        id: state.countId
-      }
+      console.log(dates)
+      firestore
+        .collection('usuarios')
+        .add(dates)
+        .then((docRef) => {
+          console.log('deu cert, user foi registrado' + docRef.id)
+        })
+        .catch((error) => {
+          console.error('Error adding document: ', error)
+        })
       state.countId += 1
-      state.users.push(addUser)
-      state.currentUser = name
-      console.log('chegou aqui oia' + state.currentUser)
+      // state.users.push(addUser)
+      state.currentUser = { cName: dates.name, cId: dates.id }
+      console.log('chegou aqui ' + state.currentUser.cName)
     },
     loginGoogle(state, user) {
       console.log(user.displayName)
       onAuthStateChanged(auth, (user) => {
         if (user) {
-          state.currentUser = user.displayName
+          state.currentUser = { cName: user.displayName, cId: user.uid }
           console.log('user encontrado:')
           console.log(state.currentUser)
-          let flag = 0 //sorry o pog
-          for (let u = 0; u < state.users.length; u++) {
-            flag += 1
-            if (state.users[u].name === user.displayName) {
-              console.log('achou igual')
-            }
-            if (flag == u) {
-              let addUser = {
-                name: user.displayName,
-                id: user.uid
-              }
-              console.log('criou e entrou')
-              state.users.push(addUser)
-              break
-            }
-          }
         } else {
-          console.log('erro')
+          let addUser = {
+            name: user.displayName,
+            id: user.uid,
+            email: user.email
+          }
+          firestore
+            .collection('usuarios')
+            .add(addUser)
+            .then((docRef) => {
+              console.log('deu cert, userG foi' + docRef.id)
+            })
+            .catch((error) => {
+              console.error('Error adding document: ', error)
+            })
+          console.log('criou e entrouG ' + addUser)
+          //state.users.push(addUser)
         }
       })
     }
@@ -174,7 +184,7 @@ const post = {
         }
         payload.createAt = timestamp
         await firestore.collection('posts').add(payload)
-        console.log('deu cert, post foi')
+        console.log('deu certo, post foi registrado')
       } catch (error) {
         console.log('quebrou aqui ' + error)
       }
