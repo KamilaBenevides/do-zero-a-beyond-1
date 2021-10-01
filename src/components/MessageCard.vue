@@ -79,7 +79,7 @@ export default {
       console.log(this.messageProp)
       await axios
         .put(
-          `http://localhost:8081/posts/${this.messageProp.id}`,
+          `https://dozeroabeyondprojeto-yy4bt5tepq-uc.a.run.app/posts/${this.messageProp.id}`,
           {
             text: this.fieldEdit
           },
@@ -100,11 +100,14 @@ export default {
     },
     async deletePost() {
       await axios
-        .delete(`http://localhost:8081/posts/${this.messageProp.id}`, {
-          headers: {
-            Authorization: 'Bearer autenticado'
+        .delete(
+          `https://dozeroabeyondprojeto-yy4bt5tepq-uc.a.run.app/posts/${this.messageProp.id}`,
+          {
+            headers: {
+              Authorization: 'Bearer autenticado'
+            }
           }
-        })
+        )
         .then(function(response) {
           console.log(response)
           console.log('deu certo, post foi registrado')

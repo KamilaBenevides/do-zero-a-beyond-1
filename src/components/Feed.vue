@@ -110,21 +110,21 @@ export default {
       return t ? 'backL' : 'backD'
     }
   },
-  async created() {
-    const PostReq = await axios.get(
-      `http://localhost:8081/users/${this.$route.params.id}`,
-      {
-        headers: {
-          Authorization: 'Bearer autenticado'
-        }
-      }
-    )
-    this.usuario = PostReq.data
-    console.log('testando = ', this.usuario)
-  },
+  // async created() {
+  //   const PostReq = await axios.get(
+  //     `http://localhost:8081/users/${this.$route.params.id}`,
+  //     {
+  //       headers: {
+  //         Authorization: 'Bearer autenticado'
+  //       }
+  //     }
+  //   )
+  //   this.usuario = PostReq.data
+  //   console.log('testando = ', this.usuario)
+  // },
   async mounted() {
     const PostReq = await axios.get(
-      `http://localhost:8081/posts/${this.$route.params.id}`,
+      `https://dozeroabeyondprojeto-yy4bt5tepq-uc.a.run.app/posts/${this.$route.params.id}`,
       {
         headers: {
           Authorization: 'Bearer autenticado'
@@ -132,6 +132,17 @@ export default {
       }
     )
     this.posts = PostReq.data
+
+    const userReq = await axios.get(
+      `https://dozeroabeyondprojeto-yy4bt5tepq-uc.a.run.app/users/${this.$route.params.id}`,
+      {
+        headers: {
+          Authorization: 'Bearer autenticado'
+        }
+      }
+    )
+    this.usuario = userReq.data
+    console.log('testando = ', this.usuario)
   }
 }
 </script>

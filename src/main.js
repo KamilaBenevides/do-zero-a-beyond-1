@@ -107,7 +107,7 @@ const users = {
     async setUser(state, user) {
       console.log(user.uid)
       const UserReq = await axios.get(
-        `http://localhost:8081/users/${user.uid}`,
+        `https://dozeroabeyondprojeto-yy4bt5tepq-uc.a.run.app/users/${user.uid}`,
         {
           headers: {
             Authorization: 'Bearer autenticado'
@@ -125,10 +125,11 @@ const users = {
       console.log(dates)
       await axios
         .post(
-          'http://localhost:8081/users',
+          'https://dozeroabeyondprojeto-yy4bt5tepq-uc.a.run.app/users',
           {
             name: dates.name,
-            email: dates.email
+            email: dates.email,
+            id: dates.id
           },
           {
             headers: {
@@ -153,7 +154,7 @@ const users = {
         if (user) {
           axios
             .post(
-              'http://localhost:8081/users',
+              'https://dozeroabeyondprojeto-yy4bt5tepq-uc.a.run.app/users',
               {
                 name: user.displayName,
                 email: user.email
@@ -166,7 +167,7 @@ const users = {
             )
             .then(function(response) {
               console.log(response)
-              console.log('deu certo, user foi registrado')
+              console.log('deu certo, userG foi registrado')
             })
             .catch(function(error) {
               console.log(error)
@@ -213,7 +214,7 @@ const post = {
         console.log(payload)
         await axios
           .post(
-            'http://localhost:8081/posts',
+            'https://dozeroabeyondprojeto-yy4bt5tepq-uc.a.run.app/posts',
             {
               name: payload.name,
               to: payload.to,

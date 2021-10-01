@@ -78,11 +78,14 @@ export default {
     }
   },
   async mounted() {
-    const usersReq = await axios.get('http://localhost:8081/users', {
-      headers: {
-        Authorization: 'Bearer autenticado'
+    const usersReq = await axios.get(
+      'https://dozeroabeyondprojeto-yy4bt5tepq-uc.a.run.app/users',
+      {
+        headers: {
+          Authorization: 'Bearer autenticado'
+        }
       }
-    })
+    )
     this.usuarios = usersReq.data
   }
 }
