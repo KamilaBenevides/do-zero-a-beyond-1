@@ -42,8 +42,9 @@
 
 <script>
 import BtnLogout from './BtnLogout.vue'
-import { firestore } from '../config/firebase.js'
+//import { firestore } from '../config/firebase.js'
 
+const axios = require('axios').default
 export default {
   components: {
     BtnLogout
@@ -77,14 +78,22 @@ export default {
       return this.$store.dispatch('theme/change', true)
     }
   },
-  created() {
-    firestore.collection('usuarios').onSnapshot((snap) => {
-      this.usuarios = []
-      snap.forEach((doc) => {
-        this.usuarios.push(doc.data())
-      })
+  async mounted() {
+    const usersReq = await axios.get('http://localhost:8081/users', {
+      headers: {
+        Authorization: 'Bearer autenticado'
+      }
     })
+    this.usuarios = usersReq.data
   }
+  // created() {
+  //   firestore.collection('usuarios').onSnapshot((snap) => {
+  //     this.usuarios = []
+  //     snap.forEach((doc) => {
+  //       this.usuarios.push(doc.data())
+  //     })
+  //   })
+  // }
 }
 </script>
 <style scoped>

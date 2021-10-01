@@ -5,7 +5,7 @@ import Vuex from 'vuex'
 import VuexPersistence from 'vuex-persist'
 import VueRouter from 'vue-router'
 import Vuelidate from 'vuelidate'
-import { auth, firestore, timestamp, storage } from './config/firebase'
+import { auth, timestamp, storage } from './config/firebase'
 import {
   getAuth,
   onAuthStateChanged,
@@ -22,7 +22,7 @@ import Login from '../src/components/Login.vue'
 Vue.use(VueRouter)
 Vue.use(Vuex)
 Vue.use(Vuelidate)
-
+const axios = require('axios').default
 const provider = new GoogleAuthProvider()
 
 const users = {
@@ -62,9 +62,13 @@ const users = {
     // eslint-disable-next-line no-unused-vars
     authenticate({ commit }, payload) {
       const { email, password } = payload
+      console.log(payload)
+      console.log(email, password)
       signInWithEmailAndPassword(auth, email, password)
         .then((res) => {
+          console.log(res)
           const userTeste = res.user
+          console.log(userTeste.displayName)
           commit('setUser', userTeste)
 
           router.push('/users')
@@ -100,27 +104,55 @@ const users = {
     }
   },
   mutations: {
-    setUser(state, user) {
-      state.loggedUser = user
-      console.log(user.displayName)
-      state.users.forEach((element) => {
-        if (element.id === user.uid) {
-          state.currentUser = element.name
+    async setUser(state, user) {
+      console.log(user.uid)
+      const UserReq = await axios.get(
+        `http://localhost:8081/users/${user.uid}`,
+        {
+          headers: {
+            Authorization: 'Bearer autenticado'
+          }
         }
-      })
+      )
+      console.log(UserReq.data)
+      state.currentUser = {
+        cName: UserReq.data.name,
+        cId: UserReq.data.id
+      }
+      // state.loggedUser = user
+      // console.log(user.displayName)
+      // state.users.forEach((element) => {
+      //   if (element.id === user.uid) {
+      //     state.currentUser = element.name
+      //   }
+      // })
     },
-    NewUser(state, dates) {
+    async NewUser(state, dates) {
       console.log('chegou aqui pra criar')
       console.log(dates)
-      firestore
-        .collection('usuarios')
-        .add(dates)
-        .then((docRef) => {
-          console.log('deu cert, user foi registrado' + docRef.id)
+      await axios
+        .post(
+          'http://localhost:8081/users',
+          {
+            name: dates.name,
+            email: dates.email
+          },
+          {
+            headers: {
+              Authorization: 'Bearer autenticado'
+            }
+          }
+        )
+        .then(function(response) {
+          console.log(response)
+          console.log('deu certo, user foi registrado')
         })
-        .catch((error) => {
-          console.error('Error adding document: ', error)
+        .catch(function(error) {
+          console.log(error)
         })
+      // const docRef = firestore.collection('usuarios').doc(dates.id)
+      // const user = { name: dates.name, id: docRef.id, email: dates.email }
+      // await docRef.set(user)
       state.countId += 1
       // state.users.push(addUser)
       state.currentUser = { cName: dates.name, cId: dates.id }
@@ -128,27 +160,42 @@ const users = {
     },
     loginGoogle(state, user) {
       console.log(user.displayName)
+      console.log(user.uid)
       onAuthStateChanged(auth, (user) => {
         if (user) {
+          axios
+            .post(
+              'http://localhost:8081/users',
+              {
+                name: user.displayName,
+                email: user.email
+              },
+              {
+                headers: {
+                  Authorization: 'Bearer autenticado'
+                }
+              }
+            )
+            .then(function(response) {
+              console.log(response)
+              console.log('deu certo, user foi registrado')
+            })
+            .catch(function(error) {
+              console.log(error)
+            })
+          // const docRef = firestore.collection('usuarios').doc(user.uid)
+          // const userG = {
+          //   name: user.displayName,
+          //   id: docRef.id,
+          //   email: user.email
+          // }
+          // docRef.set(userG)
+
           state.currentUser = { cName: user.displayName, cId: user.uid }
           console.log('user encontrado:')
           console.log(state.currentUser)
         } else {
-          let addUser = {
-            name: user.displayName,
-            id: user.uid,
-            email: user.email
-          }
-          firestore
-            .collection('usuarios')
-            .add(addUser)
-            .then((docRef) => {
-              console.log('deu cert, userG foi' + docRef.id)
-            })
-            .catch((error) => {
-              console.error('Error adding document: ', error)
-            })
-          console.log('criou e entrouG ' + addUser)
+          console.log('else')
           //state.users.push(addUser)
         }
       })
@@ -183,19 +230,40 @@ const post = {
           payload.file = true
         }
         payload.createAt = timestamp
-        await firestore.collection('posts').add(payload)
-        console.log('deu certo, post foi registrado')
+        console.log(payload)
+        await axios
+          .post(
+            'http://localhost:8081/posts',
+            {
+              name: payload.name,
+              to: payload.to,
+              from: payload.from,
+              text: payload.text,
+              file: payload.file,
+              createAt: payload.createAt
+            },
+            {
+              headers: {
+                Authorization: 'Bearer autenticado'
+              }
+            }
+          )
+          .then(function(response) {
+            console.log(response)
+            console.log('deu certo, post foi registrado')
+          })
+          .catch(function(error) {
+            console.log(error)
+          })
+        // await firestore.collection('posts').add(payload)
+        // console.log('get')
+        // console.log(payload.text)
       } catch (error) {
         console.log('quebrou aqui ' + error)
       }
-      //commit('addPost', payload)
     }
   },
-  mutations: {
-    addPost(state, messages) {
-      state.messages.push(messages)
-    }
-  }
+  mutations: {}
 }
 
 const theme = {

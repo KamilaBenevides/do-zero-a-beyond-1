@@ -7,7 +7,7 @@
         :color="$store.getters['theme/themeColors'].bar"
       >
         <v-app-bar-title>
-          <h5>Olá, {{ currentUser }}</h5>
+          <h5>Olá, {{ this.$store.state.users.currentUser.cName }}</h5>
           <br />
           <h3>{{ usuario.name }}</h3>
         </v-app-bar-title>
@@ -55,10 +55,7 @@
 
       <div v-show="!hidden" class="messages-container mb-15">
         <div v-for="(message, index) in posts" :key="index">
-          <MessageCard
-            v-if="message.name === usuario.name"
-            :messageProp="message"
-          />
+          <MessageCard :messageProp="message" />
         </div>
       </div>
     </v-main>
@@ -69,8 +66,7 @@
 import MessageCard from './MessageCard.vue'
 import Limpar from './Limpar.vue'
 import BtnLogout from './BtnLogout.vue'
-import { firestore } from '../config/firebase.js'
-
+const axios = require('axios').default
 export default {
   components: {
     MessageCard,
@@ -80,12 +76,13 @@ export default {
   data() {
     return {
       dialog: false,
-      fieldPost: ' ',
+      fieldPost: '',
       hidden: false,
       posts: [],
       usuario: ' ',
       file: null,
-      socialMedia: ' '
+      socialMedia: ' ',
+      componentKey: 0
     }
   },
   computed: {
@@ -96,7 +93,7 @@ export default {
   methods: {
     addPost() {
       let novoPost = {
-        name: this.usuario.name,
+        name: this.$store.state.users.currentUser.cName,
         to: this.$route.params.id,
         from: this.$store.state.users.currentUser.cId,
         text: this.fieldPost,
@@ -104,6 +101,7 @@ export default {
       }
       console.log(novoPost)
       this.$store.dispatch('post/sendPost', novoPost)
+      this.componentKey += 1
     },
     comandLimpar(event) {
       this.hidden = event
@@ -112,30 +110,39 @@ export default {
       return t ? 'backL' : 'backD'
     }
   },
-  created() {
-    firestore
-      .collection('posts')
-      .where('from', '==', this.$store.state.users.currentUser.cId)
-      .orderBy('createAt', 'desc')
-      .onSnapshot((snap) => {
-        this.posts = []
-        snap.forEach((doc) => {
-          this.posts.push(doc.data())
-        })
-        console.log(this.posts[0])
-      })
-    firestore
-      .collection('usuarios')
-      .where('id', '==', this.$route.params.id)
-      .onSnapshot((snap) => {
-        snap.forEach((doc) => {
-          this.usuario = doc.data()
-        })
-        console.log(this.usuario.name)
-      })
+  async created() {
+    const PostReq = await axios.get(
+      `http://localhost:8081/users/${this.$route.params.id}`,
+      {
+        headers: {
+          Authorization: 'Bearer autenticado'
+        }
+      }
+    )
+    this.usuario = PostReq.data
+    console.log('testando = ', this.usuario)
   },
+  // firestore
+  //   .collection('usuarios')
+  //   .where('id', '==', this.$route.params.id)
+  //   .onSnapshot((snap) => {
+  //     snap.forEach((doc) => {
+  //       this.usuario = doc.data()
+  //     })
+  //     console.log(this.usuario)
+  //   })
 
-  mounted() {}
+  async mounted() {
+    const PostReq = await axios.get(
+      `http://localhost:8081/posts/${this.$route.params.id}`,
+      {
+        headers: {
+          Authorization: 'Bearer autenticado'
+        }
+      }
+    )
+    this.posts = PostReq.data
+  }
 }
 </script>
 

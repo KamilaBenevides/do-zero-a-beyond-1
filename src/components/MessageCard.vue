@@ -14,7 +14,7 @@
       <v-icon :dark="!$store.state.theme.themeBox" @click.stop="dialog = true"
         >mdi-pencil</v-icon
       >
-      <v-icon :dark="!$store.state.theme.themeBox" @click="hidden = !hidden"
+      <v-icon :dark="!$store.state.theme.themeBox" @click="deletePost()"
         >mdi-delete</v-icon
       >
     </v-card-subtitle>
@@ -57,6 +57,7 @@
 </template>
 
 <script>
+const axios = require('axios').default
 export default {
   data() {
     return {
@@ -74,9 +75,44 @@ export default {
     }
   },
   methods: {
-    edit() {
+    async edit() {
       console.log(this.messageProp)
-      this.messageProp.text = this.fieldEdit
+      // this.messageProp.text = this.fieldEdit
+      await axios
+        .put(
+          `http://localhost:8081/posts/${this.messageProp.id}`,
+          {
+            text: this.fieldEdit
+          },
+          {
+            headers: {
+              Authorization: 'Bearer autenticado'
+            }
+          }
+        )
+        .then(function(response) {
+          console.log(response)
+          console.log('deu certo, post foi registrado')
+        })
+        .catch(function(error) {
+          console.log(error)
+        })
+      this.fieldEdit = ' '
+    },
+    async deletePost() {
+      await axios
+        .delete(`http://localhost:8081/posts/${this.messageProp.id}`, {
+          headers: {
+            Authorization: 'Bearer autenticado'
+          }
+        })
+        .then(function(response) {
+          console.log(response)
+          console.log('deu certo, post foi registrado')
+        })
+        .catch(function(error) {
+          console.log(error)
+        })
       this.fieldEdit = ' '
     }
   },
