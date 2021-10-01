@@ -119,13 +119,6 @@ const users = {
         cName: UserReq.data.name,
         cId: UserReq.data.id
       }
-      // state.loggedUser = user
-      // console.log(user.displayName)
-      // state.users.forEach((element) => {
-      //   if (element.id === user.uid) {
-      //     state.currentUser = element.name
-      //   }
-      // })
     },
     async NewUser(state, dates) {
       console.log('chegou aqui pra criar')
@@ -150,11 +143,6 @@ const users = {
         .catch(function(error) {
           console.log(error)
         })
-      // const docRef = firestore.collection('usuarios').doc(dates.id)
-      // const user = { name: dates.name, id: docRef.id, email: dates.email }
-      // await docRef.set(user)
-      state.countId += 1
-      // state.users.push(addUser)
       state.currentUser = { cName: dates.name, cId: dates.id }
       console.log('chegou aqui ' + state.currentUser.cName)
     },
@@ -183,20 +171,12 @@ const users = {
             .catch(function(error) {
               console.log(error)
             })
-          // const docRef = firestore.collection('usuarios').doc(user.uid)
-          // const userG = {
-          //   name: user.displayName,
-          //   id: docRef.id,
-          //   email: user.email
-          // }
-          // docRef.set(userG)
 
           state.currentUser = { cName: user.displayName, cId: user.uid }
           console.log('user encontrado:')
           console.log(state.currentUser)
         } else {
           console.log('else')
-          //state.users.push(addUser)
         }
       })
     }
@@ -255,9 +235,6 @@ const post = {
           .catch(function(error) {
             console.log(error)
           })
-        // await firestore.collection('posts').add(payload)
-        // console.log('get')
-        // console.log(payload.text)
       } catch (error) {
         console.log('quebrou aqui ' + error)
       }

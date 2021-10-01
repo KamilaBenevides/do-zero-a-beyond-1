@@ -77,7 +77,6 @@ export default {
   methods: {
     async edit() {
       console.log(this.messageProp)
-      // this.messageProp.text = this.fieldEdit
       await axios
         .put(
           `http://localhost:8081/posts/${this.messageProp.id}`,

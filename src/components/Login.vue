@@ -13,7 +13,12 @@
       </v-toolbar>
       <form class="pa-10">
         <v-text-field v-model="email" label="E-mail" required></v-text-field>
-        <v-text-field v-model="password" label="senha" required></v-text-field>
+        <v-text-field
+          v-model="password"
+          type="password"
+          label="senha"
+          required
+        ></v-text-field>
         <v-btn class="mr-4" @click="login">
           Login
         </v-btn>
@@ -38,6 +43,7 @@
           ></v-text-field>
           <v-text-field
             v-model="password"
+            type="password"
             label="Senha"
             required
           ></v-text-field>

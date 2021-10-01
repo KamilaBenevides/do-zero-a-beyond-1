@@ -42,9 +42,8 @@
 
 <script>
 import BtnLogout from './BtnLogout.vue'
-//import { firestore } from '../config/firebase.js'
-
 const axios = require('axios').default
+
 export default {
   components: {
     BtnLogout
@@ -86,14 +85,6 @@ export default {
     })
     this.usuarios = usersReq.data
   }
-  // created() {
-  //   firestore.collection('usuarios').onSnapshot((snap) => {
-  //     this.usuarios = []
-  //     snap.forEach((doc) => {
-  //       this.usuarios.push(doc.data())
-  //     })
-  //   })
-  // }
 }
 </script>
 <style scoped>

@@ -122,16 +122,6 @@ export default {
     this.usuario = PostReq.data
     console.log('testando = ', this.usuario)
   },
-  // firestore
-  //   .collection('usuarios')
-  //   .where('id', '==', this.$route.params.id)
-  //   .onSnapshot((snap) => {
-  //     snap.forEach((doc) => {
-  //       this.usuario = doc.data()
-  //     })
-  //     console.log(this.usuario)
-  //   })
-
   async mounted() {
     const PostReq = await axios.get(
       `http://localhost:8081/posts/${this.$route.params.id}`,
