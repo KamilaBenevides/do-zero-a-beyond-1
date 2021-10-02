@@ -81,6 +81,7 @@ export default {
       posts: [],
       usuario: ' ',
       file: null,
+      fileUrl: null,
       socialMedia: ' ',
       componentKey: 0
     }
@@ -97,7 +98,9 @@ export default {
         to: this.$route.params.id,
         from: this.$store.state.users.currentUser.cId,
         text: this.fieldPost,
-        file: this.file
+        fileUrl: this.fileUrl,
+        file: this.file,
+        id: null
       }
       console.log(novoPost)
       this.$store.dispatch('post/sendPost', novoPost)
@@ -110,18 +113,6 @@ export default {
       return t ? 'backL' : 'backD'
     }
   },
-  // async created() {
-  //   const PostReq = await axios.get(
-  //     `http://localhost:8081/users/${this.$route.params.id}`,
-  //     {
-  //       headers: {
-  //         Authorization: 'Bearer autenticado'
-  //       }
-  //     }
-  //   )
-  //   this.usuario = PostReq.data
-  //   console.log('testando = ', this.usuario)
-  // },
   async mounted() {
     const PostReq = await axios.get(
       `https://dozeroabeyondprojeto-yy4bt5tepq-uc.a.run.app/posts/${this.$route.params.id}`,
@@ -132,6 +123,7 @@ export default {
       }
     )
     this.posts = PostReq.data
+    console.log(this.posts)
 
     const userReq = await axios.get(
       `https://dozeroabeyondprojeto-yy4bt5tepq-uc.a.run.app/users/${this.$route.params.id}`,

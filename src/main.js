@@ -46,7 +46,7 @@ const users = {
         .createUserWithEmailAndPassword(email, password)
         .then((res) => {
           const userTest = res.user
-          console.log({ userTest })
+          console.log(userTest.displayName)
           let addUser = {
             name: name,
             id: userTest.uid,
@@ -157,7 +157,8 @@ const users = {
               'https://dozeroabeyondprojeto-yy4bt5tepq-uc.a.run.app/users',
               {
                 name: user.displayName,
-                email: user.email
+                email: user.email,
+                id: user.uid
               },
               {
                 headers: {
@@ -205,10 +206,13 @@ const post = {
         if (payload.file) {
           const upload = await storage
             .ref()
-            .child(`${payload.from}` + `/` + `${+new Date()}`)
+            .child(
+              `${payload.from}` + `/` + `${payload.to}` + `/` + `${+new Date()}`
+            )
             .put(payload.file)
           payload.fileUrl = await upload.ref.getDownloadURL()
           payload.file = true
+          console.log(payload.fileUrl)
         }
         payload.createAt = timestamp
         console.log(payload)
@@ -221,7 +225,9 @@ const post = {
               from: payload.from,
               text: payload.text,
               file: payload.file,
-              createAt: payload.createAt
+              createAt: payload.createAt,
+              fileUrl: payload.fileUrl,
+              id: payload.id
             },
             {
               headers: {
@@ -234,6 +240,7 @@ const post = {
             console.log('deu certo, post foi registrado')
           })
           .catch(function(error) {
+            console.log('deu erraado')
             console.log(error)
           })
       } catch (error) {

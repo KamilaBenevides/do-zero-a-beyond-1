@@ -21,7 +21,7 @@
 
     <v-card-text>
       {{ messageProp.text }}
-      <v-img i-if="messageProp.file" :src="src" />
+      <v-img v-if="messageProp.file" :src="src" />
     </v-card-text>
     <h6 class="d-flex align-end justify-end ma-1">
       {{ getData }}
